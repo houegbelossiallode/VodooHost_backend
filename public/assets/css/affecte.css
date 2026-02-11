@@ -1,0 +1,208 @@
+ .page-title {
+     color: #2c3e50;
+     font-weight: 700;
+     margin-bottom: 0.5rem;
+     display: flex;
+     align-items: center;
+ }
+
+ .page-title i {
+     margin-right: 0.75rem;
+     color: var(--primary);
+ }
+
+ .property-title {
+     display: inline-block;
+     color: var(--primary);
+     font-weight: 600;
+     margin-top: 0.25rem;
+     padding-bottom: 0.8rem;
+     border-bottom: 2px solid #f0f2f5;
+ }
+
+ /* Bloc "Tout sélectionner" */
+ .select-all-container {
+     background: #f8f9fa;
+     padding: 0.9rem 1.5rem;
+     border-radius: 8px;
+     margin-bottom: 1.5rem;
+     display: flex;
+     align-items: center;
+     border: 1px solid #e1e8ed;
+ }
+
+ /**.select-all-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            cursor: pointer;
+        }
+
+        .select-all-label {
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }****/
+
+
+ /* On annule les marges/positions cheloues du template sur la checkbox */
+ .select-all-checkbox {
+     width: 18px;
+     height: 18px;
+     margin: 0 !important;
+     padding: 0 !important;
+     vertical-align: middle !important;
+     position: static !important;
+ }
+
+ /* Le texte + icône sur la même ligne, centrés */
+ .select-all-text {
+     display: inline-flex;
+     align-items: center;
+ }
+
+ .select-all-text i {
+     margin-right: 0.25rem;
+ }
+
+ /* Grille d’équipements */
+ .equipments-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+     gap: 1rem;
+     margin-top: 1.25rem;
+ }
+
+ @media (max-width: 768px) {
+     .equipments-grid {
+         grid-template-columns: 1fr;
+     }
+ }
+
+ /* Carte équipement */
+ .equipment-card {
+     border: 1px solid #e9ecef;
+     border-radius: 10px;
+     padding: 0.9rem 1rem;
+     background: #fff;
+     display: flex;
+     align-items: center;
+     transition: all 0.25s ease;
+ }
+
+ .equipment-card:hover {
+     transform: translateY(-3px);
+     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+     border-color: var(--primary);
+ }
+
+ .equipment-checkbox {
+     width: 20px;
+     height: 20px;
+     margin-right: 0.9rem;
+     cursor: pointer;
+     flex-shrink: 0;
+ }
+
+ .equipment-icon {
+     width: 40px;
+     height: 40px;
+     border-radius: 10px;
+     background: #f8f9fa;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     margin-right: 0.9rem;
+     color: var(--primary);
+     font-size: 1.2rem;
+     flex-shrink: 0;
+ }
+
+ .equipment-label {
+     font-size: 0.98rem;
+     font-weight: 500;
+     color: #333;
+     margin: 0;
+     cursor: pointer;
+     flex: 1;
+ }
+
+ .select-all-container {
+     background: #f8f9fa;
+     padding: 0.9rem 1.5rem;
+     border-radius: 8px;
+     margin-bottom: 1.5rem;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     /* gauche = checkbox, droite = bouton */
+     border: 1px solid #e1e8ed;
+     gap: 1rem;
+ }
+
+ .select-all-left {
+     display: flex;
+     align-items: center;
+ }
+
+ /* Le label devient un conteneur flex horizontal */
+ .select-all-label {
+     display: inline-flex !important;
+     align-items: center;
+     gap: 0.4rem;
+     margin: 0 !important;
+     line-height: 1 !important;
+     font-weight: 600;
+     color: #333;
+     font-size: 0.95rem;
+ }
+
+ .save-btn {
+     border-radius: 30px;
+     padding: 0.6rem 1.6rem;
+     font-weight: 500;
+     border: none;
+ }
+
+ /* Responsive : bouton passe en dessous sur mobile */
+ @media (max-width: 768px) {
+     .select-all-container {
+         flex-direction: column;
+         align-items: flex-start;
+     }
+
+     .save-btn {
+         align-self: stretch;
+         text-align: center;
+         width: 100%;
+     }
+
+ }
+
+ .rituel-icon {
+     width: 60px;
+     height: 60px;
+     border-radius: 50%;
+     background-color: #f8f9fa;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     margin-right: 1rem;
+     overflow: hidden;
+     border: 2px solid #e9ecef;
+     flex-shrink: 0;
+ }
+
+ .rituel-symbole-img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     transition: transform 0.3s ease;
+ }
+
+ .rituel-icon:hover .rituel-symbole-img {
+     transform: scale(1.05);
+ }

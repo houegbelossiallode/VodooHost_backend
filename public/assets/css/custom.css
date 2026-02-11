@@ -1,0 +1,76 @@
+/* Styles personnalisés pour éliminer l'espace vide à gauche et améliorer la réactivité */
+#main, #wrapper, .content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.col-list-wrap {
+    padding: 0 15px;
+}
+
+.listing-item-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 0 -5px;
+}
+
+.listing-item {
+    width: 100%;
+    padding: 0 5px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+/* Ajustements pour les écrans moyens */
+@media (min-width: 768px) {
+    .listing-item {
+        width: 50%;
+    }
+}
+
+/* Ajustements pour les grands écrans */
+@media (min-width: 992px) {
+    .listing-item {
+        width: 33.333%;
+    }
+}
+
+/* Ajustements pour les très grands écrans */
+@media (min-width: 1200px) {
+    .listing-item {
+        width: 25%;
+    }
+}
+
+/* Assurez-vous que les images s'adaptent à leur conteneur */
+.geodir-category-img img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Ajustements pour les filtres de recherche */
+.top-search-content {
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+/* Ajustements pour la pagination */
+.pagination {
+    justify-content: center;
+    padding: 20px 0;
+}
+
+/* Correction pour les marges négatives */
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+
+/* C'est moi qui ait rajouté ça */
+
+

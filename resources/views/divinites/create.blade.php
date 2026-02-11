@@ -1,0 +1,82 @@
+@extends('layouts.app')
+@section('section')
+    <!-- content -->
+    <div class="dashboard-content">
+        <div class="dashboard-menu-btn color-bg"><span><i class="fas fa-bars"></i></span>Dashboard Menu</div>
+        <div class="container dasboard-container">
+            <!-- dashboard-title -->
+            <div class="dashboard-title fl-wrap">
+                <div class="dashboard-title-item"><span>Formulaire de création de divinité</span></div>
+                @include('partials/hearder2')
+            </div>
+            <!-- dashboard-title end -->
+
+            <div class="dasboard-wrapper fl-wrap no-pag">
+                <div class="dasboard-widget-title dwb-mar fl-wrap" id="sec6">
+                    <h5>Ajouter une divinité</h5>
+                </div>
+
+                <!-- Formulaire -->
+                <form action="{{ route('hoost.divinites.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="dasboard-widget-box fl-wrap">
+                        <div class="custom-form add_room-item-wrap">
+                            <div class="add_room-container fl-wrap">
+
+                                <div class="add_room-item fl-wrap">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Nom :</label>
+                                            <input type="text" name="nom" placeholder="nom de la divinité"
+                                                value="{{ old('nom') }}"
+                                                class="{{ $errors->has('nom') ? 'is-invalid' : '' }}"
+                                                style="text-align:left;padding-left:15px;" />
+                                            @error('nom')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-sm-12">
+                                            <label>Description</label>
+                                            <div class="listsearch-input-item">
+                                                <textarea name="description" cols="40" rows="3" style="height:85px;" placeholder="Décrivez la divinité">{{ old('description') }}</textarea>
+                                                @error('description')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <!-- Colonne droite : image -->
+                                        <div class="col-sm-12">
+                                            <label>Image</label>
+                                            <div class="listsearch-input-item fl-wrap">
+                                                <div class="fuzone">
+                                                    <div class="fu-text">
+                                                        <span><i class="far fa-cloud-upload-alt"></i> Déposez l'image
+                                                            ici</span>
+                                                        <div class="photoUpload-files fl-wrap"></div>
+                                                    </div>
+                                                    <input type="file" name="image" accept="image/*"
+                                                        class="upload {{ $errors->has('image') ? 'is-invalid' : '' }}">
+                                                    @error('image')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                    @enderror
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div><!-- /.row -->
+                                </div><!-- /.add_room-item -->
+                            </div><!-- /.add_room-container -->
+                        </div><!-- /.custom-form -->
+
+                        <!-- Bouton d'enregistrement -->
+                        <div class="mt-3">
+                            <button type="submit" class="btn color-bg float-btn">Enregistrer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
