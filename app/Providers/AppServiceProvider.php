@@ -39,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+         if ($this->app->environment('production')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
         // Définir la langue de l'application
         if (session()->has('locale')) {
             app()->setLocale(session('locale'));
