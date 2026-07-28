@@ -15,44 +15,34 @@ class RecommendationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // if (!$user->hasCompletedQuestionnaire()) {
-        //     return redirect()->route('hoost.preferences.questionnaire')
-        //         ->with('info', 'Veuillez d\'abord compléter le questionnaire pour voir vos recommandations.');
-        // }
-
         $preferences = $user->preferences;
         
+        $divinitesPreferees = $preferences?->divinites_preferees ?? [];
+        if (!is_array($divinitesPreferees)) {
+            $divinitesPreferees = json_decode($divinitesPreferees, true) ?? [];
+        }
+
+        if (empty($divinitesPreferees)) {
+            return redirect()->route('hoost.preferences.questionnaire')
+                ->with('info', 'Veuillez d\'abord compléter le questionnaire pour voir vos recommandations.');
+        }
+
         // Récupérer les logements recommandés basés sur les divinités préférées
-        $logements = Logement::whereHas('divinites', function($query) use ($preferences) {
-            $query->whereIn('divinites.id', $preferences->divinites_preferees);
+        $logements = Logement::whereHas('divinites', function($query) use ($divinitesPreferees) {
+            $query->whereIn('divinites.id', $divinitesPreferees);
         })
         ->with(['photos', 'divinites', 'user'])
         ->inRandomOrder()
         ->take(6)
         ->get();
 
-        //dd($logements);
-
-        // Si l'utilisateur souhaite assister à un rituel
-        // $rituels = [];
-        // if ($preferences->assister_rituel) {
-        //     $rituels = Rituel::whereHas('divinites', function($query) use ($preferences) {
-        //         $query->whereIn('divinites.id', $preferences->divinites_preferees);
-        //     })
-        //     ->with(['divinites', 'user'])
-        //     ->take(3)
-        //     ->get();
-        // }
-
-        // Informations sur les divinités sélectionnées
-        $divinites = Divinite::whereIn('id', $preferences->divinites_preferees)->get();
+        $divinites = Divinite::whereIn('id', $divinitesPreferees)->get();
 
         return view('recommendations.index', [
             'logements' => $logements,
-            //'rituels' => $rituels,
             'divinites' => $divinites,
-            'preferences' => $preferences
+            'preferences' => $preferences,
+            'user' => $user,
         ]);
     }
 }

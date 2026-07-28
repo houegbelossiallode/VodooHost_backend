@@ -58,14 +58,19 @@ class UserPreferenceController extends Controller
         public function update(Request $request)
         {
             $data = $request->validate([
-              'divinites' => 'array',
-              'divinites.*' => 'string',
-              'assister_rituel' => 'nullable|boolean',
-              ]);
-            Auth::user()->preferences()->update([
-                'divinites_preferees' => $data['divinites'] ?? [],
-                'assister_rituel' => $data['assister_rituel'] ?? false,
+                'divinites' => 'array',
+                'divinites.*' => 'string',
+                'assister_rituel' => 'nullable|boolean',
             ]);
+
+            UserPreference::updateOrCreate(
+                ['user_id' => Auth::id()],
+                [
+                    'divinites_preferees' => $data['divinites'] ?? [],
+                    'assister_rituel' => $data['assister_rituel'] ?? false,
+                ]
+            );
+
             return redirect()->route('hoost.recommendations')->with('success', 'Vos préférences ont été mises à jour avec succès !');
         }
     
