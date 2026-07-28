@@ -180,11 +180,7 @@ class User extends Authenticatable
 
         $listAcces = Sousmenu::join('role_permissions', 'sousmenus.id', '=', 'role_permissions.sousmenu_id')
             ->where('role_permissions.role_id', $this->role->id)
-            ->where(function($q) {
-                $q->where('role_permissions.is_granted', true)
-                  ->orWhere('role_permissions.is_granted', 1)
-                  ->orWhereRaw('role_permissions.is_granted IS TRUE');
-            })
+            ->whereRaw('role_permissions.is_granted IS TRUE')
             ->pluck('sousmenus.url')
             ->filter()
             ->toArray();
