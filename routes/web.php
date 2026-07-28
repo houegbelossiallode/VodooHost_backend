@@ -95,7 +95,7 @@ Route::get('/password/forgot', [AuthController::class,'forgotForm'])->name('pass
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.forgot.submit');
 Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('reset.password.form');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'permission'])->group(function () {
     Route::get('reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::get('reviews/{reservation}/avis/{user}', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('reviews/{reservation}/avis/{user}', [ReviewController::class, 'store'])->name('reviews.store');

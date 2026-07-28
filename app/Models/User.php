@@ -162,14 +162,47 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function permissions($path)
+    public function permissions($routeName)
     {
+        if (!$this->role) {
+            return false;
+        }
+
+        // Accès complet pour les rôles d'administration
+        if (in_array(strtolower($this->role->name ?? ''), ['admin', 'superadmin', 'administrateur'])) {
+            return true;
+        }
+
+        if (!$routeName) {
+            return true;
+        }
+
         $listAcces = Sousmenu::join('role_permissions', 'sousmenus.id', '=', 'role_permissions.sousmenu_id')
             ->where('role_permissions.role_id', $this->role->id)
-            ->whereRaw('role_permissions.is_granted IS TRUE')
+            ->where(function($q) {
+                $q->where('role_permissions.is_granted',DB::raw('true'))
+                  ->orWhere('role_permissions.is_granted', 1);
+            })
             ->pluck('sousmenus.url')
+            ->filter()
             ->toArray();
-        return in_array($path, $listAcces);
+
+        // 1. Accès direct si le nom de route exact est autorisé
+        if (in_array($routeName, $listAcces)) {
+            return true;
+        }
+
+        // 2. Vérification pour les sous-routes de ressources (ex: hoost.logements.index autorise hoost.logements.create, edit, show, etc.)
+        $baseRoute = implode('.', array_slice(explode('.', $routeName), 0, -1));
+        if ($baseRoute) {
+            foreach ($listAcces as $grantedRoute) {
+                if ($grantedRoute === $baseRoute || str_starts_with($grantedRoute, $baseRoute . '.')) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function logements()
