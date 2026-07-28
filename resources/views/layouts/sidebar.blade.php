@@ -55,10 +55,29 @@
                 <ul class="no-list-style">
                     <li><a href="{{ route('hoost.home') }}" class="user-profile-act"><i class="fal fa-home"></i> Accueil</a></li>
                     
+                    @php
+                        $getMenuUrl = function ($url) {
+                            if (empty($url) || $url === '#') {
+                                return '#';
+                            }
+                            if (Route::has($url)) {
+                                try {
+                                    return route($url);
+                                } catch (\Throwable $e) {
+                                    return '#';
+                                }
+                            }
+                            if (\Illuminate\Support\Str::startsWith($url, ['http://', 'https://', '/'])) {
+                                return url($url);
+                            }
+                            return '#';
+                        };
+                    @endphp
+
                     @foreach ($mainmenus as $menu)
                         @if($menu->sousmenus->isEmpty())
                             <li>
-                                <a href="{{ Route::has($menu->url) ? route($menu->url) : '#' }}">
+                                <a href="{{ $getMenuUrl($menu->url) }}">
                                     <i class="fal {{ $menu->icon }}"></i> {{ $menu->name }}
                                 </a>
                             </li>
@@ -70,7 +89,7 @@
                                 <ul class="no-list-style">
                                     @foreach ($menu->sousmenus as $sousmenu)
                                         <li>
-                                            <a href="{{ Route::has($sousmenu->url) ? route($sousmenu->url) : '#' }}">
+                                            <a href="{{ $getMenuUrl($sousmenu->url) }}">
                                                 <i class="fal fa-angle-right"></i> {{ $sousmenu->name }}
                                             </a>
                                         </li>
