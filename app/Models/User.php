@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Models\Reservation;
 use App\Models\Role;
 use App\Models\Sousmenu;
@@ -180,8 +181,9 @@ class User extends Authenticatable
         $listAcces = Sousmenu::join('role_permissions', 'sousmenus.id', '=', 'role_permissions.sousmenu_id')
             ->where('role_permissions.role_id', $this->role->id)
             ->where(function($q) {
-                $q->where('role_permissions.is_granted',DB::raw('true'))
-                  ->orWhere('role_permissions.is_granted', 1);
+                $q->where('role_permissions.is_granted', true)
+                  ->orWhere('role_permissions.is_granted', 1)
+                  ->orWhereRaw('role_permissions.is_granted IS TRUE');
             })
             ->pluck('sousmenus.url')
             ->filter()
