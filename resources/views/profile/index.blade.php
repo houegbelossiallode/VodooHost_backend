@@ -184,7 +184,7 @@
                                             <div class="onoffswitch">
                                                 <input type="checkbox" name="email" class="onoffswitch-checkbox"
                                                     id="notif_email" value="1"
-                                                    {{ $preferences->email ? 'checked' : '' }}>
+                                                    {{ $preferences?->email ? 'checked' : '' }}>
                                                 <label class="onoffswitch-label" for="notif_email">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -202,7 +202,7 @@
                                             <div class="onoffswitch">
                                                 <input type="checkbox" name="sms" class="onoffswitch-checkbox"
                                                     id="notif_sms" value="1"
-                                                    {{ $preferences->sms ? 'checked' : '' }}>
+                                                    {{ $preferences?->sms ? 'checked' : '' }}>
                                                 <label class="onoffswitch-label" for="notif_sms">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -221,7 +221,7 @@
                                             <div class="onoffswitch">
                                                 <input type="checkbox" name="in_app" class="onoffswitch-checkbox"
                                                     id="notif_in_app" value="1"
-                                                    {{ $preferences->in_app ? 'checked' : '' }}>
+                                                    {{ $preferences?->in_app ? 'checked' : '' }}>
                                                 <label class="onoffswitch-label" for="notif_in_app">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -240,7 +240,7 @@
                                             <div class="onoffswitch">
                                                 <input type="checkbox" name="reservation_confirmee"
                                                     class="onoffswitch-checkbox" id="notif_resa_ok" value="1"
-                                                    {{ $preferences->reservation_confirmee ? 'checked' : '' }}>
+                                                    {{ $preferences?->reservation_confirmee ? 'checked' : '' }}>
                                                 <label class="onoffswitch-label" for="notif_resa_ok">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -259,7 +259,7 @@
                                             <div class="onoffswitch">
                                                 <input type="checkbox" name="annulation_reservation"
                                                     class="onoffswitch-checkbox" id="notif_resa_cancel" value="1"
-                                                    {{ $preferences->annulation_reservation ? 'checked' : '' }}>
+                                                    {{ $preferences?->annulation_reservation ? 'checked' : '' }}>
                                                 <label class="onoffswitch-label" for="notif_resa_cancel">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -278,7 +278,7 @@
                                             <div class="onoffswitch">
                                                 <input type="checkbox" name="nouveau_message"
                                                     class="onoffswitch-checkbox" id="notif_msg" value="1"
-                                                    {{ $preferences->nouveau_message ? 'checked' : '' }}>
+                                                    {{ $preferences?->nouveau_message ? 'checked' : '' }}>
                                                 <label class="onoffswitch-label" for="notif_msg">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>

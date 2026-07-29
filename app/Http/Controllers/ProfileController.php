@@ -16,8 +16,8 @@ class ProfileController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $preferences = Auth::user()->notificationPreferences;
-        return view('profile.index',compact('user', 'preferences'));
+        $preferences = $user->notificationPreferences()->firstOrCreate([]);
+        return view('profile.index', compact('user', 'preferences'));
     }
 
     private function uploadImage(\Illuminate\Http\UploadedFile $file): string
