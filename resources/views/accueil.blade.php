@@ -207,7 +207,7 @@
                                                 <a href="{{ route('hoost.hebergements.show', $logement->id) }}"
                                                     class="geodir-category-img_item">
                                                     <img src="{{ $firstPhoto ?? asset('assets/images/all/1.jpg') }}"
-                                                        alt="{{ app(\App\Services\TranslatorService::class)->translate($logement->titre) }}"
+                                                        alt="{{ $logement->titre }}"
                                                         style="height:260px;object-fit:cover;">
                                                     <div class="overlay"></div>
                                                 </a>
