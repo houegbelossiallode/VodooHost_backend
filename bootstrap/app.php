@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo(function ($request) {
+            return $request->expectsJson() ? null : route('hoost.login.form');
+        });
         // $middleware->web([
         //     SetLocale::class
         // ]);

@@ -64,6 +64,7 @@ use App\Http\Controllers\ReviewController;
 
 // Page d'accueil du portail
 Route::get('/', [PortalController::class, 'index'])->name('portal');
+Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
 Route::prefix('hoost')->name('hoost.')->group(function () {
 // Lien public (pas besoin d’être connecté)
 Route::get('/favoris/public/{token}', [FavoriteController::class, 'showPublic'])->name('favorites.share.show');
