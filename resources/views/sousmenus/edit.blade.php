@@ -22,6 +22,7 @@
             @method('PUT')
             <div class="dasboard-widget-box fl-wrap">
                 <div class="custom-form">
+                    <!-- Ligne 1 : Libellé et Menu -->
                     <div class="row">
                         <!-- Libellé -->
                         <div class="col-sm-6">		 
@@ -57,7 +58,10 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
 
+                    <!-- Ligne 2 : Route et Affichage -->
+                    <div class="row mt-3">
                         <!-- Route -->
                         <div class="col-sm-6">		 
                             <label>Route</label>
@@ -85,7 +89,6 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-
                     </div>
                 </div>
             </div>

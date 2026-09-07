@@ -19,6 +19,7 @@
                 @csrf
                 <div class="dasboard-widget-box fl-wrap">
                     <div class="custom-form">
+                        <!-- Ligne 1 : Libellé et Menu -->
                         <div class="row">
                             <div class="col-sm-6">
                                 <label>Libelle</label>
@@ -46,10 +47,13 @@
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
 
+                        <!-- Ligne 2 : Route et Affichage -->
+                        <div class="row mt-3">
                             <div class="col-sm-6">
                                 <label>Route</label>
-                                <input type="text" name="url" placeholder="libelle" value="{{ old('url') }}"
+                                <input type="text" name="url" placeholder="Route" value="{{ old('url') }}"
                                     class="{{ $errors->has('url') ? 'is-invalid' : '' }}"
                                     style="text-align: left; padding-left: 15px;" />
                                 @error('url')
