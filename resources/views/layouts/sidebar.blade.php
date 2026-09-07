@@ -64,13 +64,17 @@
                                 try {
                                     return route($url);
                                 } catch (\Throwable $e) {
-                                    return '#';
+                                    // Si la route nommée nécessite un paramètre obligatoire (ex: {id}), on tente url()
                                 }
                             }
                             if (\Illuminate\Support\Str::startsWith($url, ['http://', 'https://', '/'])) {
                                 return url($url);
                             }
-                            return '#';
+                            try {
+                                return url($url);
+                            } catch (\Throwable $e) {
+                                return '#';
+                            }
                         };
                     @endphp
 

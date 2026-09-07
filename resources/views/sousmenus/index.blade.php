@@ -44,6 +44,16 @@
                                                 <strong>Route:</strong>
                                                 <span>{{ $sousmenu->url ?? '—' }}</span>
                                             </li>
+                                            <li>
+                                                <strong>Affiché (Menu):</strong>
+                                                <span>
+                                                    @if(($sousmenu->is_show ?? 'OUI') === 'OUI')
+                                                        <span style="color: #19A64A; font-weight: bold;">OUI</span>
+                                                    @else
+                                                        <span style="color: #E04F10; font-weight: bold;">NON</span>
+                                                    @endif
+                                                </span>
+                                            </li>
 
                                             <li>
                                                 <strong>Créé le :</strong>

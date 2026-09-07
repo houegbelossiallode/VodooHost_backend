@@ -28,16 +28,19 @@ class SousMenuController extends Controller
              'name' => 'required',
              'menu_id' => 'required|exists:menus,id',
              'url' => 'required',
+             'is_show' => 'required|in:OUI,NON',
          ],[
             'name.required' => "Le name est requis",
             'menu_id.required' => "Le menu est requis",
             'url.required' => "L'URL est requise",
+            'is_show.required' => "L'affichage (is_show) est requis",
         ]);
  
          Sousmenu::create([
              'name' => $request->name,
              'menu_id' => $request->menu_id,
              'url' => $request->url,
+             'is_show' => $request->is_show ?? 'OUI',
          ]);
  
          return redirect()->route('hoost.sousmenus.index')->with('success', 'sousmenu créé avec succès.');
@@ -58,10 +61,12 @@ class SousMenuController extends Controller
              'name' => 'required|max:255',
              'menu_id' => 'required|exists:menus,id', 
              'url' => 'required',
+             'is_show' => 'required|in:OUI,NON',
          ],[
             'name.required' => "Le name est requis",
             'menu_id.required' => "Le menu est requis",
             'url.required' => "L'URL est requise",
+            'is_show.required' => "L'affichage (is_show) est requis",
         ]);
  
          $sousmenu = Sousmenu::findOrFail($id);
@@ -69,6 +74,7 @@ class SousMenuController extends Controller
              'name' => $request->name,
              'menu_id' => $request->menu_id,
              'url' => $request->url,
+             'is_show' => $request->is_show ?? 'OUI',
          ])->save();
  
          return redirect()->route('hoost.sousmenus.index')->with('success', 'sousmenu mis à jour avec succès.');

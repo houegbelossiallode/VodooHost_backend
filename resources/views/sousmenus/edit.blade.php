@@ -59,7 +59,7 @@
                         </div>
 
                         <!-- Route -->
-                        <div class="col-sm-12">		 
+                        <div class="col-sm-6">		 
                             <label>Route</label>
                             <input
                                 type="text"
@@ -70,8 +70,20 @@
                             @error('url')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
+                        </div>
 
-                            
+                        <!-- Affichage (Visible) -->
+                        <div class="col-sm-6">		 
+                            <label>Afficher dans le menu (Visible)</label>
+                            <select
+                                name="is_show"
+                                class="chosen-select on-radius {{ $errors->has('is_show') ? 'is-invalid' : '' }}">
+                                <option value="OUI" {{ old('is_show', $sousmenu->is_show ?? 'OUI') === 'OUI' ? 'selected' : '' }}>OUI</option>
+                                <option value="NON" {{ old('is_show', $sousmenu->is_show) === 'NON' ? 'selected' : '' }}>NON</option>
+                            </select>
+                            @error('is_show')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
 
                     </div>
