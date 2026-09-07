@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Sousmenu;
+use App\Models\Role;
+use App\Models\RolePermission;
 use Illuminate\Http\Request;
 
 class SousMenuController extends Controller
@@ -41,26 +43,22 @@ class SousMenuController extends Controller
              'menu_id' => $request->menu_id,
              'url' => $request->url,
              'is_show' => $request->is_show ?? 'OUI',
+             'actif' => 'OUI',
          ]);
 
          // Création explicite des permissions pour chaque rôle
-         $roles = \App\Models\Role::all();
+         $roles = Role::all();
          foreach ($roles as $role) {
-             $exists = \Illuminate\Support\Facades\DB::table('role_permissions')
-                 ->where('sousmenu_id', $sousmenu->id)
-                 ->where('role_id', $role->id)
-                 ->exists();
-
-             if (!$exists) {
-                 \Illuminate\Support\Facades\DB::table('role_permissions')->insert([
+             RolePermission::firstOrCreate(
+                 [
                      'sousmenu_id' => $sousmenu->id,
                      'role_id'     => $role->id,
-                     'is_granted'  => \Illuminate\Support\Facades\DB::raw('false'),
-                     'actif'=> 'OUI',
-                     'created_at'  => now(),
-                     'updated_at'  => now(),
-                 ]);
-             }
+                 ],
+                 [
+                     'is_granted'  => false,
+                     'actif'       => 'OUI',
+                 ]
+             );
          }
  
          return redirect()->route('hoost.sousmenus.index')->with('success', 'sousmenu créé avec succès.');

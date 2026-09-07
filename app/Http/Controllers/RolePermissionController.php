@@ -18,22 +18,22 @@ class RolePermissionController extends Controller
         }
         $role = Role::where('id',$roleid)->firstOrFail();
 
-        // Synchroniser automatiquement tout sous-menu manquant pour ce rôle
-        $existingSousmenuIds = RolePermission::where('role_id', $roleid)->pluck('sousmenu_id')->toArray();
-        $missingSousmenus = Sousmenu::whereNotIn('id', $existingSousmenuIds)->get();
-
-        foreach ($missingSousmenus as $sousmenu) {
-            DB::table('role_permissions')->insert([
-                'sousmenu_id' => $sousmenu->id,
-                'role_id'     => $roleid,
-                'is_granted'  => DB::raw('false'),
-                'actif'       => 'OUI',
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
+        // S'assurer que chaque sous-menu a bien une permission enregistrée pour ce rôle
+        $sousmenus = Sousmenu::all();
+        foreach ($sousmenus as $sousmenu) {
+            RolePermission::firstOrCreate(
+                [
+                    'sousmenu_id' => $sousmenu->id,
+                    'role_id'     => $role->id,
+                ],
+                [
+                    'is_granted'  => false,
+                    'actif'       => 'OUI',
+                ]
+            );
         }
 
-        $permissions = RolePermission::where('role_id',$roleid)->get();
+        $permissions = RolePermission::with(['sousmenu.menu'])->where('role_id', $role->id)->get();
         return view('roles.permissions.index', compact('permissions','role'));
     }
 
