@@ -119,7 +119,7 @@ class User extends Authenticatable
     }
 
 
-  
+
     public function averageRating(): ?float
     {
         return $this->reviewsReceived()->avg('rating');
@@ -169,11 +169,6 @@ class User extends Authenticatable
             return false;
         }
 
-        // Accès complet pour les rôles d'administration
-        if (in_array(strtolower($this->role->name ?? ''), ['admin', 'superadmin', 'administrateur'])) {
-            return true;
-        }
-
         if (!$routeName) {
             return true;
         }
@@ -185,18 +180,19 @@ class User extends Authenticatable
             ->filter()
             ->toArray();
 
-        // 1. Accès direct si le nom de route exact est autorisé
+        // 1. Vérification exacte directe
         if (in_array($routeName, $listAcces)) {
             return true;
         }
 
-        // 2. Vérification pour les sous-routes de ressources (ex: hoost.logements.index autorise hoost.logements.create, edit, show, etc.)
-        $baseRoute = implode('.', array_slice(explode('.', $routeName), 0, -1));
-        if ($baseRoute) {
-            foreach ($listAcces as $grantedRoute) {
-                if ($grantedRoute === $baseRoute || str_starts_with($grantedRoute, $baseRoute . '.')) {
-                    return true;
-                }
+        // 2. Vérification exacte sans le préfixe 'hoost.'
+        $cleanRouteName = str_starts_with($routeName, 'hoost.') ? substr($routeName, 6) : $routeName;
+
+        foreach ($listAcces as $grantedRoute) {
+            $cleanGrantedRoute = str_starts_with($grantedRoute, 'hoost.') ? substr($grantedRoute, 6) : $grantedRoute;
+
+            if ($cleanRouteName === $cleanGrantedRoute) {
+                return true;
             }
         }
 
