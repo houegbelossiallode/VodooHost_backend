@@ -36,12 +36,32 @@ class SousMenuController extends Controller
             'is_show.required' => "L'affichage (is_show) est requis",
         ]);
  
-         Sousmenu::create([
+         $sousmenu = Sousmenu::create([
              'name' => $request->name,
              'menu_id' => $request->menu_id,
              'url' => $request->url,
              'is_show' => $request->is_show ?? 'OUI',
          ]);
+
+         // Création explicite des permissions pour chaque rôle
+         $roles = \App\Models\Role::all();
+         foreach ($roles as $role) {
+             $exists = \Illuminate\Support\Facades\DB::table('role_permissions')
+                 ->where('sousmenu_id', $sousmenu->id)
+                 ->where('role_id', $role->id)
+                 ->exists();
+
+             if (!$exists) {
+                 \Illuminate\Support\Facades\DB::table('role_permissions')->insert([
+                     'sousmenu_id' => $sousmenu->id,
+                     'role_id'     => $role->id,
+                     'is_granted'  => \Illuminate\Support\Facades\DB::raw('false'),
+                     'actif'=> 'OUI',
+                     'created_at'  => now(),
+                     'updated_at'  => now(),
+                 ]);
+             }
+         }
  
          return redirect()->route('hoost.sousmenus.index')->with('success', 'sousmenu créé avec succès.');
      }
