@@ -18,19 +18,24 @@ class RolePermissionController extends Controller
         }
         $role = Role::where('id',$roleid)->firstOrFail();
 
-        // S'assurer que chaque sous-menu a bien une permission enregistrée pour ce rôle
+        // S'assurer que chaque sous-menu a bien une permission enregistrée pour ce rôle via DB::table (compatible Postgres)
         $sousmenus = Sousmenu::all();
         foreach ($sousmenus as $sousmenu) {
-            RolePermission::firstOrCreate(
-                [
+            $exists = DB::table('role_permissions')
+                ->where('sousmenu_id', $sousmenu->id)
+                ->where('role_id', $role->id)
+                ->exists();
+
+            if (!$exists) {
+                DB::table('role_permissions')->insert([
                     'sousmenu_id' => $sousmenu->id,
                     'role_id'     => $role->id,
-                ],
-                [
-                    'is_granted'  => false,
+                    'is_granted'  => DB::raw('false'),
                     'actif'       => 'OUI',
-                ]
-            );
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+            }
         }
 
         $permissions = RolePermission::with(['sousmenu.menu'])->where('role_id', $role->id)->get();

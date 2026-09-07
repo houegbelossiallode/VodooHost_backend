@@ -19,16 +19,21 @@ class SousmenuObserver
         $roles = Role::all();
         // Parcourir chaque rôle pour créer une permission par défaut
         foreach ($roles as $role) { 
-            RolePermission::firstOrCreate(
-                [
+            $exists = DB::table('role_permissions')
+                ->where('sousmenu_id', $sousmenu->id)
+                ->where('role_id', $role->id)
+                ->exists();
+
+            if (!$exists) {
+                DB::table('role_permissions')->insert([
                     'sousmenu_id' => $sousmenu->id,
                     'role_id'     => $role->id,
-                ],
-                [
-                    'is_granted'  => false,
+                    'is_granted'  => DB::raw('false'),
                     'actif'       => 'OUI',
-                ]
-            );
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+            }
         }
     }
 
