@@ -17,11 +17,22 @@ class RolePermissionController extends Controller
             return redirect()->route('hoost.roles.index')->with('error', 'Veuillez selectionner un profil.');
         }
         $role = Role::where('id',$roleid)->firstOrFail();
-        if(!$role){
-            return redirect()->route('hoost.roles.index')->with('error', 'Ce profil n\'existe pas');
+
+        // Synchroniser automatiquement tout sous-menu manquant pour ce rôle
+        $existingSousmenuIds = RolePermission::where('role_id', $roleid)->pluck('sousmenu_id')->toArray();
+        $missingSousmenus = Sousmenu::whereNotIn('id', $existingSousmenuIds)->get();
+
+        foreach ($missingSousmenus as $sousmenu) {
+            DB::table('role_permissions')->insert([
+                'sousmenu_id' => $sousmenu->id,
+                'role_id'     => $roleid,
+                'is_granted'  => DB::raw('false'),
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
         }
+
         $permissions = RolePermission::where('role_id',$roleid)->get();
-        //dd($permissions);
         return view('roles.permissions.index', compact('permissions','role'));
     }
 

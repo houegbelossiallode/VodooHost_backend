@@ -14,14 +14,23 @@ class RoleObserver
      */
     public function created(Role $role): void
     {
-         // Récupérer tous les rôles existants
+         // Récupérer tous les sous-menus existants
          $sousmenus = Sousmenu::all();
          foreach ($sousmenus as $sousmenu) { 
-             RolePermission::create([
-                 'sousmenu_id' => $sousmenu->id,
-                 'role_id' => $role->id,
-                 'is_granted'  => DB::raw('FALSE'),
-             ]);
+             $exists = DB::table('role_permissions')
+                 ->where('sousmenu_id', $sousmenu->id)
+                 ->where('role_id', $role->id)
+                 ->exists();
+
+             if (!$exists) {
+                 DB::table('role_permissions')->insert([
+                     'sousmenu_id' => $sousmenu->id,
+                     'role_id'     => $role->id,
+                     'is_granted'  => DB::raw('false'),
+                     'created_at'  => now(),
+                     'updated_at'  => now(),
+                 ]);
+             }
          }
     }
 
