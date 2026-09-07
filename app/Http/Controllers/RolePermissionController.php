@@ -27,6 +27,7 @@ class RolePermissionController extends Controller
                 'sousmenu_id' => $sousmenu->id,
                 'role_id'     => $roleid,
                 'is_granted'  => DB::raw('false'),
+                'actif'       => 'OUI',
                 'created_at'  => now(),
                 'updated_at'  => now(),
             ]);

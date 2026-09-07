@@ -29,6 +29,7 @@ class SousmenuObserver
                     'sousmenu_id' => $sousmenu->id,
                     'role_id'     => $role->id,
                     'is_granted'  => DB::raw('false'),
+                    'actif'       => 'OUI',
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ]);
