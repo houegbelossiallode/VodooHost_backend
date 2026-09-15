@@ -35,11 +35,11 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 120px;">Photo</th>
-                                    <th>Description</th>
-                                    <th>Informations</th>
-                                    <th>Prix</th>
-                                    <th style="width: 150px;">Actions</th>
+                                    <th style="width: 100px;">Photo</th>
+                                    <th style="max-width: 320px; min-width: 200px;">Description</th>
+                                    <th style="width: 220px;">Informations</th>
+                                    <th style="width: 120px;">Prix</th>
+                                    <th style="width: 100px;" class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,7 +53,7 @@
                                         <!-- Colonne Photo -->
                                         <td class="align-middle">
                                             <div class="position-relative"
-                                                style="width: 100px; height: 70px; overflow: hidden; border-radius: 8px;">
+                                                style="width: 90px; height: 65px; overflow: hidden; border-radius: 8px;">
                                                 <img src="{{ $firstPhoto }}" alt="{{ $logement->titre }}"
                                                     class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
 
@@ -61,10 +61,10 @@
                                         </td>
 
                                         <!-- Colonne Description -->
-                                        <td class="align-middle">
+                                        <td class="align-middle" style="max-width: 320px; min-width: 200px;">
                                             <div class="desc-col">
-                                                <span class="desc-title" >{{ $logement->titre }}</span>
-                                                <span class="desc-text">{{ Str::limit($logement->description, 80) }}</span>
+                                                <span class="desc-title">{{ $logement->titre }}</span>
+                                                <span class="desc-text">{{ Str::limit($logement->description, 100) }}</span>
                                             </div>
                                         </td>
 
