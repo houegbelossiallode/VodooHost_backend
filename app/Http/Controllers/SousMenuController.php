@@ -13,7 +13,7 @@ class SousMenuController extends Controller
 {
     public function index()
      {
-         $sousmenus = Sousmenu::with('menu')->orderBy('updated_at','desc')->get();
+         $sousmenus = Sousmenu::orderBy('updated_at','desc')->get();
          return view('sousmenus.index', compact('sousmenus'));
      }
  
