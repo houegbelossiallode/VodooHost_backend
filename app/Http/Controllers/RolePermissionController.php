@@ -38,7 +38,7 @@ class RolePermissionController extends Controller
             }
         }
 
-        $permissions = RolePermission::with(['sousmenu.menu'])->where('role_id', $role->id)->get();
+        $permissions = RolePermission::with(['sousmenu.menu'])->orderBy('updated_at','desc')->where('role_id', $role->id)->get();
         return view('roles.permissions.index', compact('permissions','role'));
     }
 
