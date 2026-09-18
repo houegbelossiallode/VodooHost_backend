@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SupabaseCallbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
@@ -62,6 +63,7 @@ use App\Http\Controllers\ReviewController;
 
 
 
+Route::get('/hoost/confirmation', [SupabaseCallbackController::class, 'handle']);
 // Page d'accueil du portail
 Route::get('/', [PortalController::class, 'index'])->name('portal');
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
@@ -73,6 +75,7 @@ Route::get('/auth/supabase/callback', [SupabaseAuthController::class, 'callback'
 Route::post('/auth/supabase/handle', [SupabaseAuthController::class, 'handle'])->name('supabase.handle');
 Route::get('/', [AccueilController::class, 'index'])->name('accueil');
 Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
+
 //Contact
 Route::resource('contacts', ContactController::class)->except(['show']);
 Route::get('/contactez-nous', [ContactController::class,'liste'])->name('contacts.liste');
