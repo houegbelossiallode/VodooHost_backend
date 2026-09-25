@@ -30,13 +30,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         (async function() {
+            // Vérifier que le SDK Supabase est chargé
+            if (typeof window.supabase === 'undefined') {
+                console.error('SDK Supabase non chargé');
+                alert('Erreur de chargement du SDK Supabase');
+                return;
+            }
+
             const supabaseUrl = '{{ config('services.supabase.url') }}';
             const supabaseAnonKey = '{{ config('services.supabase.anon_key') }}';
-            const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
             try {
                 // Récupérer la session Supabase après la redirection OAuth
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
 
                 if (error) {
                     console.error("Erreur session Supabase:", error);
