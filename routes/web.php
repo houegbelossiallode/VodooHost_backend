@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\SupabaseCallbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
@@ -14,6 +13,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\ProjetController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RitualController;
 use App\Http\Controllers\RituelController;
 use App\Http\Controllers\AccueilController;
@@ -54,8 +54,8 @@ use App\Http\Controllers\LogementDejeunerController;
 use App\Http\Controllers\LogementDivinitesController;
 use App\Http\Controllers\LogementReglementController;
 use App\Http\Controllers\LogementEquipementsController;
+use App\Http\Controllers\Auth\SupabaseCallbackController;
 use App\Http\Controllers\LogementDisponibiliteController;
-use App\Http\Controllers\ReviewController;
 
 // Route::get('/lang/{locale}', [LanguageController::class, 'switch'])
 //     ->name('language.switch');

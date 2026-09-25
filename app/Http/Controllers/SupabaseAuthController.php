@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class SupabaseAuthController extends Controller
 {
@@ -19,30 +21,62 @@ class SupabaseAuthController extends Controller
         $this->supabaseAnonKey = config('services.supabase.anon_key');
     }
 
-    public function redirect(string $provider,Request $request)
+
+    public function redirect(string $provider, Request $request)
     {
-        
-        // On récupère le rôle choisi dans l’URL
-        $roleSlug = $request->query('slug'); // défaut : visiteur
-        // On le stocke en session pour l’utiliser après le retour de Supabase
+        $roleSlug = $request->query('slug', 'visiteur');
         session(['social_slug' => $roleSlug]);
-        // URL de redirection OAuth côté Supabase
+
         $redirectTo = route('hoost.supabase.callback');
-        //dd('REDIRECT TO = ' . $redirectTo);
+
+        // Ajout de response_type=token pour forcer le retour par Hash (#access_token=...)
         $url = $this->supabaseUrl
-        . '/auth/v1/authorize'
-        . '?provider=' . $provider
-        . '&redirect_to=' . urlencode($redirectTo);
+            . '/auth/v1/authorize'
+            . '?provider=' . $provider
+            . '&redirect_to=' . urlencode($redirectTo)
+            . '&response_type=token';
+
         return redirect()->away($url);
     }
 
+    // public function redirect(string $provider,Request $request)
+    // {
+    //     // On récupère le rôle choisi dans l’URL
+    //     $roleSlug = $request->query('slug'); // défaut : visiteur
+    //     // On le stocke en session pour l’utiliser après le retour de Supabase
+    //     session(['social_slug' => $roleSlug]);
+    //     // URL de redirection OAuth côté Supabase
+    //     $redirectTo = route('hoost.supabase.callback');
+
+    //     \Log::info('OAuth Redirect', [
+    //         'provider' => $provider,
+    //         'role_slug' => $roleSlug,
+    //         'redirect_to' => $redirectTo,
+    //         'supabase_url' => $this->supabaseUrl,
+    //     ]);
+
+    //     $url = $this->supabaseUrl
+    //     . '/auth/v1/authorize'
+    //     . '?provider=' . $provider
+    //     . '&redirect_to=' . urlencode($redirectTo);
+
+    //     \Log::info('OAuth Redirect URL', ['url' => $url]);
+
+    //     return redirect()->away($url);
+    // }
+
     public function callback(Request $request)
     {
+        \Log::info('OAuth Callback received', [
+            'query_params' => $request->query(),
+            'url' => $request->fullUrl(),
+        ]);
+
         return view('auth.supabase-callback');
     }
 
 
-   
+
     public function handle(Request $request)
     {
         $accessToken  = $request->input('access_token');
@@ -136,5 +170,5 @@ class SupabaseAuthController extends Controller
 
 
 
-    
+
 }
