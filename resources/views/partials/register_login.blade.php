@@ -200,8 +200,7 @@
                                                     style="width:18px;margin-right:8px;vertical-align:middle;">
                                                 Continuer avec Google
                                             </a> --}}
-                                            <a href="#" class="google-log social-login"
-                                                data-base-url="{{ route('hoost.supabase.redirect', ['provider' => 'google']) }}"
+                                            <a href="javascript:void(0)" class="google-log social-login"
                                                 style="background:#fff;color:#444;border:1px solid #ddd;">
                                                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"
                                                     style="width:18px;margin-right:8px;vertical-align:middle;">
@@ -240,15 +239,33 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier que le SDK Supabase est chargé
+        if (typeof supabase === 'undefined') {
+            console.error('SDK Supabase non chargé');
+            return;
+        }
+
         const socialButtons = document.querySelectorAll('.social-login');
 
         socialButtons.forEach(btn => {
             btn.addEventListener('click', async function(e) {
                 e.preventDefault();
 
-                // Rôle choisi dans le formulaire (host / visitor)
+                // Vérifier si c'est le bouton Google
+                if (!this.classList.contains('google-log')) {
+                    // Pour les autres boutons (Facebook, etc.), utiliser l'ancien comportement
+                    const checked = document.querySelector('input[name="slug"]:checked');
+                    const roleSlug = checked ? checked.value : 'visitor';
+                    const baseUrl = this.getAttribute('data-base-url');
+                    const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') +
+                        'slug=' + encodeURIComponent(roleSlug);
+                    window.location.href = url;
+                    return;
+                }
+
+                // Pour Google : utiliser le SDK Supabase avec PKCE
                 const checked = document.querySelector('input[name="slug"]:checked');
-                const roleSlug = checked ? checked.value : 'visitor'; // défaut : visitor
+                const roleSlug = checked ? checked.value : 'visitor';
 
                 // Stocker le rôle en session
                 sessionStorage.setItem('social_slug', roleSlug);
@@ -256,11 +273,18 @@
                 // Initialiser Supabase avec le SDK JS (supporte PKCE nativement)
                 const supabaseUrl = '{{ config('services.supabase.url') }}';
                 const supabaseAnonKey = '{{ config('services.supabase.anon_key') }}';
-                const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+                if (!supabaseUrl || !supabaseAnonKey) {
+                    console.error('Configuration Supabase manquante');
+                    alert('Erreur de configuration Supabase');
+                    return;
+                }
 
                 try {
+                    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
                     // Redirection vers Google avec PKCE géré automatiquement par le SDK
-                    const { data, error } = await supabase.auth.signInWithOAuth({
+                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
                             redirectTo: window.location.origin + '/hoost/auth/supabase/callback',
@@ -273,11 +297,11 @@
 
                     if (error) {
                         console.error('Erreur OAuth:', error);
-                        alert('Erreur lors de la connexion avec Google');
+                        alert('Erreur lors de la connexion avec Google: ' + error.message);
                     }
                 } catch (err) {
                     console.error('Erreur:', err);
-                    alert('Erreur lors de la connexion avec Google');
+                    alert('Erreur lors de la connexion avec Google: ' + err.message);
                 }
             });
         });
