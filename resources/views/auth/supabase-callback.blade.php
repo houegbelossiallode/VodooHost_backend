@@ -11,10 +11,9 @@
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
 </head>
 <body>
-   
+
     <div class="loader-wrap">
         <div class="loader-inner">
-            {{-- <img src="{{ asset('assets/images/zangbeto.jpg') }}" class="loader-logo" alt="Loading..."> --}}
             <svg>
                 <defs>
                     <filter id="goo">
@@ -28,49 +27,83 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        (function() {
-            // 1) Récupérer le fragment : "#access_token=...&refresh_token=..."
-            const hash = window.location.hash.substring(1); // enlève le '#'
-            const params = new URLSearchParams(hash);
+        (async function() {
+            const supabaseUrl = '{{ config('services.supabase.url') }}';
+            const supabaseAnonKey = '{{ config('services.supabase.anon_key') }}';
+            const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
+            try {
+                // Récupérer la session Supabase après la redirection OAuth
+                const { data: { session }, error } = await supabase.auth.getSession();
 
-            if (!accessToken) {
-                alert("Impossible de récupérer le token Supabase.");
-                console.error("Hash reçu :", hash);
-                return;
-            }
-
-            // 2) Envoyer au backend Laravel
-            fetch("{{ route('hoost.supabase.handle') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Accept": "application/json",
-                },
-                body: JSON.stringify({
-                    access_token: accessToken,
-                    refresh_token: refreshToken,
-                }),
-            })
-            .then(async (response) => {
-                const data = await response.json();
-                if (!response.ok || !data.success) {
-                    console.error("Réponse Supabase/Laravel :", data);
-                    alert(data.message || "Erreur lors de la connexion.");
+                if (error) {
+                    console.error("Erreur session Supabase:", error);
+                    alert("Impossible de récupérer la session Supabase.");
                     return;
                 }
 
-                // 3) Redirection vers le dashboard (ou autre)
-                window.location.href = data.redirect || "/dashboard";
-            })
-            .catch((error) => {
-                console.error("Erreur réseau :", error);
-                alert("Erreur réseau lors de l'authentification.");
-            });
+                if (!session) {
+                    // Si pas de session, essayer de récupérer depuis l'URL hash
+                    const hash = window.location.hash.substring(1);
+                    const params = new URLSearchParams(hash);
+                    const accessToken = params.get('access_token');
+
+                    if (!accessToken) {
+                        alert("Impossible de récupérer le token Supabase.");
+                        console.error("Hash reçu :", hash);
+                        return;
+                    }
+
+                    // Envoyer directement les tokens du hash
+                    const refreshToken = params.get('refresh_token');
+                    sendTokensToBackend(accessToken, refreshToken);
+                } else {
+                    // Envoyer les tokens de la session
+                    sendTokensToBackend(session.access_token, session.refresh_token);
+                }
+            } catch (err) {
+                console.error("Erreur:", err);
+                alert("Erreur lors de l'authentification.");
+            }
+
+            function sendTokensToBackend(accessToken, refreshToken) {
+                // Récupérer le rôle depuis sessionStorage
+                const roleSlug = sessionStorage.getItem('social_slug') || 'visitor';
+
+                fetch("{{ route('hoost.supabase.handle') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json",
+                    },
+                    body: JSON.stringify({
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                        role_slug: roleSlug,
+                    }),
+                })
+                .then(async (response) => {
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        console.error("Réponse Supabase/Laravel :", data);
+                        alert(data.message || "Erreur lors de la connexion.");
+                        return;
+                    }
+
+                    // Nettoyer sessionStorage
+                    sessionStorage.removeItem('social_slug');
+
+                    // Redirection vers le dashboard
+                    window.location.href = data.redirect || "/dashboard";
+                })
+                .catch((error) => {
+                    console.error("Erreur réseau :", error);
+                    alert("Erreur réseau lors de l'authentification.");
+                });
+            }
         })();
     </script>
 </body>

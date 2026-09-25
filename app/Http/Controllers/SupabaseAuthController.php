@@ -81,6 +81,7 @@ class SupabaseAuthController extends Controller
     {
         $accessToken  = $request->input('access_token');
         $refreshToken = $request->input('refresh_token');
+        $roleSlug     = $request->input('role_slug', session('social_slug', 'visitor'));
 
         if (!$accessToken) {
             return response()->json([
@@ -118,8 +119,8 @@ class SupabaseAuthController extends Controller
             ], 400);
         }
 
-        // Rôle choisi stocké en session lors du redirect
-        $roleSlug = session('social_slug'); // 'host' ou 'visiteur'
+        // Rôle choisi (priorité à la requête, sinon session)
+        $roleSlug = $roleSlug ?: session('social_slug', 'visitor');
 
         // On mappe vers les libellés de ta table roles (hote / visiteur)
         $mapSlugToLibelle = [

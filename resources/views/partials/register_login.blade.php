@@ -237,26 +237,48 @@
 
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const socialButtons = document.querySelectorAll('.social-login');
 
         socialButtons.forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', async function(e) {
                 e.preventDefault();
 
                 // Rôle choisi dans le formulaire (host / visitor)
                 const checked = document.querySelector('input[name="slug"]:checked');
                 const roleSlug = checked ? checked.value : 'visitor'; // défaut : visitor
 
-                // URL de base fournie dans data-base-url
-                const baseUrl = this.getAttribute('data-base-url');
+                // Stocker le rôle en session
+                sessionStorage.setItem('social_slug', roleSlug);
 
-                // On ajoute ?slug=xxx
-                const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') +
-                    'slug=' + encodeURIComponent(roleSlug);
+                // Initialiser Supabase avec le SDK JS (supporte PKCE nativement)
+                const supabaseUrl = '{{ config('services.supabase.url') }}';
+                const supabaseAnonKey = '{{ config('services.supabase.anon_key') }}';
+                const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-                window.location.href = url;
+                try {
+                    // Redirection vers Google avec PKCE géré automatiquement par le SDK
+                    const { data, error } = await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.origin + '/hoost/auth/supabase/callback',
+                            queryParams: {
+                                access_type: 'offline',
+                                prompt: 'consent',
+                            }
+                        }
+                    });
+
+                    if (error) {
+                        console.error('Erreur OAuth:', error);
+                        alert('Erreur lors de la connexion avec Google');
+                    }
+                } catch (err) {
+                    console.error('Erreur:', err);
+                    alert('Erreur lors de la connexion avec Google');
+                }
             });
         });
     });
