@@ -225,7 +225,7 @@
                     </div>
                     <!--tabs end -->
                     <!-- Social -->
-                    
+
 
                 </div>
             </div>
@@ -281,24 +281,13 @@
                 }
 
                 try {
-                    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                    // Utiliser directement la route PHP qui construit l'URL OAuth SANS PKCE (implicit flow)
+                    // response_type=token force l'implicit flow au lieu de PKCE
+                    const roleSlug = 'visitor'; // ou récupérer depuis un input si nécessaire
+                    const oauthUrl = window.location.origin + '/hoost/auth/supabase/redirect/google?slug=' + roleSlug;
 
-                    // Redirection vers Google avec PKCE géré automatiquement par le SDK
-                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: {
-                            redirectTo: window.location.origin + '/hoost/auth/supabase/callback',
-                            queryParams: {
-                                access_type: 'offline',
-                                prompt: 'consent',
-                            }
-                        }
-                    });
-
-                    if (error) {
-                        console.error('Erreur OAuth:', error);
-                        alert('Erreur lors de la connexion avec Google: ' + error.message);
-                    }
+                    // Redirection directe vers la route PHP (évite PKCE du SDK JavaScript)
+                    window.location.href = oauthUrl;
                 } catch (err) {
                     console.error('Erreur:', err);
                     alert('Erreur lors de la connexion avec Google: ' + err.message);
