@@ -27,14 +27,16 @@ class SupabaseAuthController extends Controller
         $roleSlug = $request->query('slug', 'visiteur');
         session(['social_slug' => $roleSlug]);
 
+        // Utiliser l'URL de callback par défaut de Supabase
+        // Supabase redirigera ensuite vers votre application via le dashboard
         $redirectTo = route('hoost.supabase.callback');
 
-        // Ajout de response_type=token pour forcer le retour par Hash (#access_token=...)
         $url = $this->supabaseUrl
             . '/auth/v1/authorize'
             . '?provider=' . $provider
-            . '&redirect_to=' . urlencode($redirectTo)
-            . '&response_type=token';
+            . '&redirect_to=' . urlencode($redirectTo);
+
+        Log::info('OAuth Redirect URL', ['url' => $url]);
 
         return redirect()->away($url);
     }
@@ -67,7 +69,7 @@ class SupabaseAuthController extends Controller
 
     public function callback(Request $request)
     {
-        \Log::info('OAuth Callback received', [
+        Log::info('OAuth Callback received', [
             'query_params' => $request->query(),
             'url' => $request->fullUrl(),
         ]);
@@ -81,7 +83,6 @@ class SupabaseAuthController extends Controller
     {
         $accessToken  = $request->input('access_token');
         $refreshToken = $request->input('refresh_token');
-        $roleSlug     = $request->input('role_slug', session('social_slug', 'visitor'));
 
         if (!$accessToken) {
             return response()->json([
@@ -108,9 +109,6 @@ class SupabaseAuthController extends Controller
         $supabaseUser = $response->json();
 
         $email = $supabaseUser['email'] ?? null;
-        $fullName = $supabaseUser['user_metadata']['full_name']
-            ?? $supabaseUser['user_metadata']['name']
-            ?? null;
 
         if (!$email) {
             return response()->json([
@@ -119,48 +117,103 @@ class SupabaseAuthController extends Controller
             ], 400);
         }
 
-        // Rôle choisi (priorité à la requête, sinon session)
-        $roleSlug = $roleSlug ?: session('social_slug', 'visitor');
+        $user = User::where('supabase_id', $supabaseUser['id'])
+            ->orWhere('email', $email)
+            ->first();
 
-        // On mappe vers les libellés de ta table roles (hote / visiteur)
-        $mapSlugToLibelle = [
-            'host'     => 'Hote',
-            'visitor' => 'Visiteur',
-        ];
-        $libelleRole = $mapSlugToLibelle[$roleSlug];
-        // On récupère l'id du rôle correspondant
-        $roleId = Role::where('libelle', $libelleRole)->value('id');
-        // 2) Créer / retrouver l'utilisateur Laravel
-        $user = User::firstOrCreate(
-            ['email' => $email],
-            [
-                'nom'        => $fullName ?? 'Utilisateur Supabase',
-                'prenom'     => $fullName,
-                'telephone'  => '63521478',
-                'profession' => 'Compte social',
+        if ($user && $user->supabase_id && $user->supabase_id !== $supabaseUser['id']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cette adresse email est déjà associée à un autre compte.',
+            ], 409);
+        }
+
+        if (!$user) {
+            $roleSlug = $request->input('role_slug');
+
+            if (!$roleSlug) {
+                return response()->json([
+                    'success' => true,
+                    'needs_profile' => true,
+                ]);
+            }
+
+            $roleLabels = [
+                'host' => 'Hote',
+                'visitor' => 'Visiteur',
+                'photographer' => 'Photographe',
+                'manager' => 'Manager',
+            ];
+
+            if (!array_key_exists($roleSlug, $roleLabels)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Veuillez choisir un profil valide.',
+                ], 422);
+            }
+
+            $role = Role::where('actif', 'OUI')->where('libelle', $roleLabels[$roleSlug])->first();
+
+            if (!$role) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce profil est momentanément indisponible.',
+                ], 422);
+            }
+
+            $metadata = $supabaseUser['user_metadata'] ?? [];
+            $firstName = trim((string) ($metadata['given_name'] ?? ''));
+            $lastName = trim((string) ($metadata['family_name'] ?? ''));
+            $fullName = trim((string) ($metadata['full_name'] ?? $metadata['name'] ?? ''));
+
+            if ($firstName === '' && $fullName !== '') {
+                $nameParts = preg_split('/\s+/', $fullName) ?: [];
+                $firstName = array_shift($nameParts) ?? '';
+                if ($lastName === '') {
+                    $lastName = implode(' ', $nameParts);
+                }
+            }
+
+            $firstName = $firstName !== '' ? $firstName : 'Utilisateur';
+            $lastName = $lastName !== '' ? $lastName : $firstName;
+            $phone = $metadata['phone'] ?? null;
+            $profession = $metadata['profession'] ?? null;
+
+            $user = User::create([
                 'supabase_id' => $supabaseUser['id'],
-                'role_id'=> $roleId
-            ]
-        );
-        // On nettoie la session pour la prochaine fois
-        session()->forget('social_slug');
-        // 3) Connexion Laravel
+                'nom' => $lastName,
+                'prenom' => $firstName,
+                'telephone' => is_string($phone) && trim($phone) !== '' ? $phone : '63521478',
+                'profession' => is_string($profession) && trim($profession) !== '' ? $profession : 'Compte social',
+                'email' => $email,
+                'role_id' => $role->id,
+                'photo' => $metadata['avatar_url'] ?? $metadata['picture'] ?? null,
+            ]);
+        } elseif (!$user->supabase_id) {
+            $user->supabase_id = $supabaseUser['id'];
+            $user->save();
+        }
+
+        
+
+        // Connecter uniquement après avoir trouvé ou créé le profil local.
         Auth::login($user, true);
-        // 4) Optionnel : stocker les tokens en session
         session([
             'supabase_access_token'  => $accessToken,
             'supabase_refresh_token' => $refreshToken,
         ]);
-        // Vérifier si l'utilisateur a déjà ses préférences (divinités choisies)
+
         if ($user->preferences && !empty($user->preferences->divinites_preferees)) {
             return response()->json([
                 'success'  => true,
+                'needs_profile' => false,
                 'message'  => 'Connexion réussie ! Bienvenue ' . $user->nom . ' !',
                 'redirect' => url('/hoost/home'),
             ]);
         } else {
             return response()->json([
                 'success'  => true,
+                'needs_profile' => false,
                 'message'  => 'Bienvenue ' . $user->nom . ' ! Veuillez compléter votre questionnaire de préférences.',
                 'redirect' => route('hoost.preferences.questionnaire'),
             ]);

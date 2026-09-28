@@ -31,35 +31,37 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'nom'        => 'required',
+            'prenom'     => 'required',
+            'telephone'  => 'required',
+            'profession' => 'required',
+            'email'      => 'required|email|unique:users,email',
+            'password'   => 'required|min:8|confirmed',
+            'role_id'    => 'required|integer|exists:roles,id',
+        ], [
+            'nom.required'        => 'Le champ est requis',
+            'prenom.required'     => 'Le champ est requis',
+            'email.required'      => 'Le champ est requis',
+            'email.unique'        => "L'email est déjà utilisé",
+            'email.email'         => 'Email invalide',
+            'telephone.required'  => 'Le champ est requis',
+            'profession.required' => 'Le champ est requis',
+            'role_id.required'    => 'Veuillez choisir un rôle',
+            'role_id.exists'      => 'Le rôle sélectionné est invalide',
+        ]);
+
         try {
-            // 1) Validation
-            $request->validate([
-                'nom'        => 'required',
-                'prenom'     => 'required',
-                'telephone'  => 'required',
-                'profession' => 'required',
-                'email'      => 'required|email|unique:users,email',
-                'password'   => 'required|min:8|confirmed',
-                'slug'       => ['required', 'in:host,visitor'],
-            ], [
-                'nom.required'        => "Le champs est requis",
-                'prenom.required'     => "Le champs est requis",
-                'email.required'      => "Le champs est requis",
-                'email.unique'        => "L'email est déjà utilisé",
-                'email.email'         => "Email invalide",
-                'telephone.required'  => "Le champs est requis",
-                'profession.required' => "Le champs est requis",
-            ]);
+            $role = Role::whereKey($request->input('role_id'))
+                ->where('actif', 'OUI')
+                ->whereRaw('LOWER(TRIM(libelle)) NOT IN (?, ?)', ['admin', 'administrateur'])
+                ->first();
 
-            //2) Mapping slug -> libelle en base
-            $map = [
-                'host'    => 'Hote',
-                'visitor' => 'Visiteur',
-            ];
-            $libelleRole = $map[$request->slug];
-
-            // 3) Récupérer le rôle correspondant
-            $role = Role::where('actif', 'OUI')->where('libelle', $libelleRole)->firstOrFail();
+            if (!$role) {
+                return back()->withErrors([
+                    'role_id' => 'Veuillez choisir un rôle actif autorisé.',
+                ])->withInput();
+            }
 
             // 5) Créer l'utilisateur dans Supabase Auth
             $supabaseResponse = Http::withHeaders([
@@ -75,7 +77,8 @@ class AuthController extends Controller
                         'prenom'     => $request->prenom,
                         'telephone'  => $request->telephone,
                         'profession' => $request->profession,
-                        'slug'       => $request->slug,
+                        'role_id'    => $role->id,
+                        'role'       => $role->libelle,
                     ],
                 ]);
 

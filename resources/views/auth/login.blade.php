@@ -151,8 +151,10 @@
                         </div>
                     </div>
                 </div>
+
             </div>
             @include('partials.footer')
+
         </div>
         <!-- wrapper end -->
         <!--register form -->
@@ -321,7 +323,44 @@
                 <a href="{{ route('hoost.register') }}">Créer un compte</a>
             </div> --}}
         </form>
+        <div class="auth-social-separator"><span>ou</span></div>
+        <a id="google-login-button" href="{{ route('hoost.supabase.redirect', ['provider' => 'google']) }}" class="btn-google-auth">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="" aria-hidden="true">
+            Continuer avec Google
+        </a>
+        <p class="google-login-error" id="google-login-error" role="alert" hidden></p>
     </div>
+</div>
+
+<div class="google-profile-overlay" id="google-profile-modal" hidden>
+    <section class="google-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="google-profile-title">
+        <h2 id="google-profile-title">Choisissez votre profil</h2>
+        <p class="google-profile-intro">Votre compte Google est reconnu, mais aucun profil Vodoo Host n’y est encore associé.</p>
+        <div class="google-profile-options">
+            <button type="button" class="google-role-card" data-google-role="visitor" aria-label="Choisir le profil Visiteur">
+                <span class="google-role-icon" aria-hidden="true"><i class="fas fa-compass"></i></span>
+                <span class="google-role-name">Visiteur</span>
+                <span class="google-role-description">Trouver un logement et préparer votre séjour.</span>
+            </button>
+            <button type="button" class="google-role-card" data-google-role="host" aria-label="Choisir le profil Hôte">
+                <span class="google-role-icon" aria-hidden="true"><i class="fas fa-home"></i></span>
+                <span class="google-role-name">Hôte</span>
+                <span class="google-role-description">Proposer votre logement aux voyageurs.</span>
+            </button>
+            <button type="button" class="google-role-card" data-google-role="photographer" aria-label="Choisir le profil Photographe">
+                <span class="google-role-icon" aria-hidden="true"><i class="fas fa-camera"></i></span>
+                <span class="google-role-name">Photographe</span>
+                <span class="google-role-description">Partager vos services photo avec les hôtes.</span>
+            </button>
+            <button type="button" class="google-role-card" data-google-role="manager" aria-label="Choisir le profil Manager">
+                <span class="google-role-icon" aria-hidden="true"><i class="fas fa-user-cog"></i></span>
+                <span class="google-role-name">Manager</span>
+                <span class="google-role-description">Gérer les activités et le suivi de la plateforme.</span>
+            </button>
+        </div>
+        <p class="google-profile-error" id="google-profile-error" role="alert" hidden></p>
+        <button type="button" class="google-profile-cancel" id="google-profile-cancel">Annuler</button>
+    </section>
 </div>
 
 <style>
@@ -497,6 +536,189 @@
         color: #666;
     }
 
+        .auth-social-separator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            color: #777;
+            font-size: 0.88rem;
+        }
+
+        .auth-social-separator::before,
+        .auth-social-separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e5e5;
+        }
+
+        .btn-google-auth {
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            color: #333;
+            font-size: 0.92rem;
+            text-decoration: none;
+        }
+
+        .btn-google-auth:hover {
+            background: #f8f8f8;
+        }
+
+        .btn-google-auth img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .google-profile-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(20, 28, 35, 0.56);
+        }
+
+        .google-profile-overlay[hidden],
+        .google-profile-error[hidden] {
+            display: none;
+        }
+
+        .google-profile-dialog {
+            width: min(100%, 440px);
+            padding: 30px;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(20, 28, 35, 0.24);
+        }
+
+        .google-profile-dialog h2 {
+            margin: 0 0 8px;
+            color: #262b2f;
+            font-size: 1.35rem;
+        }
+
+        .google-profile-intro {
+            margin: 0;
+            color: #68727a;
+            line-height: 1.5;
+        }
+
+        .google-profile-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin: 22px 0 8px;
+        }
+
+        .google-role-card {
+            display: flex;
+            min-width: 0;
+            min-height: 154px;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 16px;
+            border: 1px solid #e0e4e6;
+            border-radius: 10px;
+            background: #fff;
+            color: #262b2f;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+        }
+
+        .google-role-card:hover,
+        .google-role-card:focus-visible {
+            transform: translateY(-2px);
+            border-color: #b89716;
+            background: #fffdf6;
+            outline: none;
+        }
+
+        .google-role-icon {
+            display: grid;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            margin-bottom: 14px;
+            border-radius: 10px;
+            background: #e8f2ef;
+            color: #176b55;
+            font-size: 18px;
+        }
+
+        .google-role-card[data-google-role="host"] .google-role-icon {
+            background: #fbf2d5;
+            color: #91710b;
+        }
+
+        .google-role-name {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .google-role-description {
+            margin-top: 5px;
+            color: #68727a;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .google-role-card:disabled {
+            cursor: wait;
+            opacity: 0.58;
+            transform: none;
+        }
+
+        .google-profile-cancel {
+            min-height: 44px;
+            padding: 8px 12px;
+            border: 0;
+            background: transparent;
+            color: #68727a;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .google-profile-cancel:hover {
+            color: #262b2f;
+            text-decoration: underline;
+        }
+
+        .google-profile-cancel:disabled {
+            cursor: wait;
+            opacity: 0.6;
+        }
+
+        .google-profile-error {
+            margin: 12px 0 0;
+            color: #b42318 !important;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .google-profile-dialog { padding: 22px; }
+            .google-profile-options { grid-template-columns: 1fr; }
+            .google-role-card { min-height: 116px; }
+        }
+
+        .google-login-error {
+            margin: 10px 0 0;
+            color: #b42318;
+            font-size: 0.88rem;
+        }
+
+        .google-login-error[hidden] {
+            display: none;
+        }
+
     .auth-footer a {
         color: #B89815;
         text-decoration: none;
@@ -514,3 +736,117 @@
         }
     }
 </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const googleButton = document.getElementById('google-login-button');
+            const googleError = document.getElementById('google-login-error');
+            const modal = document.getElementById('google-profile-modal');
+            const roleButtons = [...document.querySelectorAll('[data-google-role]')];
+            const cancelButton = document.getElementById('google-profile-cancel');
+            const errorMessage = document.getElementById('google-profile-error');
+            let authPopup = null;
+
+            googleButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                googleError.hidden = true;
+                authPopup = window.open(
+                    googleButton.href,
+                    'vodoo-google-auth',
+                    'popup=yes,width=500,height=650,resizable=yes,scrollbars=yes'
+                );
+
+                if (!authPopup) {
+                    googleError.textContent = 'Autorisez les fenêtres pop-up pour continuer avec Google.';
+                    googleError.hidden = false;
+                    return;
+                }
+
+                authPopup.focus();
+            });
+
+            window.addEventListener('message', (event) => {
+                if (event.origin !== window.location.origin || event.source !== authPopup) return;
+
+                if (event.data?.type === 'google-profile-required') {
+                    sessionStorage.setItem('google_oauth_access_token', event.data.access_token);
+                    sessionStorage.setItem('google_oauth_refresh_token', event.data.refresh_token || '');
+                    modal.hidden = false;
+                    roleButtons[0]?.focus();
+                } else if (event.data?.type === 'google-auth-success') {
+                    window.location.replace(event.data.redirect || '/hoost/home');
+                } else if (event.data?.type === 'google-auth-error') {
+                    googleError.textContent = event.data.message || 'La connexion Google a échoué.';
+                    googleError.hidden = false;
+                }
+
+                if (authPopup && !authPopup.closed) authPopup.close();
+                authPopup = null;
+            });
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('google_profile') === 'complete') {
+                const accessToken = sessionStorage.getItem('google_oauth_access_token');
+                if (accessToken) modal.hidden = false;
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+
+            roleButtons.forEach((button) => {
+                button.addEventListener('click', async () => {
+                    const accessToken = sessionStorage.getItem('google_oauth_access_token');
+                    const refreshToken = sessionStorage.getItem('google_oauth_refresh_token');
+                    if (!accessToken) return;
+
+                    roleButtons.forEach((item) => item.disabled = true);
+                    cancelButton.disabled = true;
+                    errorMessage.hidden = true;
+
+                    try {
+                        const response = await fetch("{{ route('hoost.supabase.handle') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                access_token: accessToken,
+                                refresh_token: refreshToken,
+                                role_slug: button.dataset.googleRole,
+                            }),
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.message || 'La création du profil a échoué.');
+                        }
+
+                        sessionStorage.removeItem('google_oauth_access_token');
+                        sessionStorage.removeItem('google_oauth_refresh_token');
+                        window.location.replace(data.redirect || '/hoost/home');
+                    } catch (error) {
+                        errorMessage.textContent = error.message;
+                        errorMessage.hidden = false;
+                        roleButtons.forEach((item) => item.disabled = false);
+                        cancelButton.disabled = false;
+                    }
+                });
+            });
+
+            cancelButton.addEventListener('click', async () => {
+                cancelButton.disabled = true;
+                try {
+                    const supabaseUrl = '{{ config('services.supabase.url') }}';
+                    const supabaseAnonKey = '{{ config('services.supabase.anon_key') }}';
+                    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                    await supabaseClient.auth.signOut();
+                } catch (error) {
+                    console.error('Erreur lors de la déconnexion Supabase:', error);
+                } finally {
+                    sessionStorage.removeItem('google_oauth_access_token');
+                    sessionStorage.removeItem('google_oauth_refresh_token');
+                    window.location.replace('/login');
+                }
+            });
+        });
+    </script>

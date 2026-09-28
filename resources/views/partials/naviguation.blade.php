@@ -24,9 +24,9 @@
                 </div> --}}
     <!--  add new  btn end -->
     <!--  header-opt_btn -->
-    <div class="header-opt_btn tolt" data-microtip-position="bottom" data-tooltip="Language / Currency">
+    {{-- <div class="header-opt_btn tolt" data-microtip-position="bottom" data-tooltip="Language / Currency">
         <span><i class="fal fa-globe"></i></span>
-    </div>
+    </div> --}}
     <!--  header-opt_btn end -->
     <!--  cart-btn   -->
     {{-- <div class="cart-btn  tolt show-header-modal" data-microtip-position="bottom"  data-tooltip="Your Wishlist / Compare">
@@ -262,7 +262,7 @@
     </div>
     <!--wishlist-wrap end -->
     <!--header-opt-modal-->
-    <div class="header-opt-modal novis_header-mod">
+    {{-- <div class="header-opt-modal novis_header-mod">
         <div class="header-opt-modal-container hopmc_init">
             <div class="header-opt-modal-item lang-item fl-wrap">
                 <h4>
@@ -311,7 +311,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     <!--header-opt-modal end -->
 </header>
 <!-- header end  -->
