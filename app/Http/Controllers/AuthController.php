@@ -137,8 +137,27 @@ class AuthController extends Controller
                 ]);
 
             if ($response->failed()) {
-                // Mauvais email/mot de passe ou autre erreur côté Supabase
-                return back()->with("error", "Identifiants incorrects");
+                $errorData = $response->json() ?? [];
+                $errorCode = strtolower((string) ($errorData['code'] ?? ''));
+                $errorMessage = strtolower((string) (
+                    $errorData['message']
+                    ?? $errorData['msg']
+                    ?? $errorData['error_description']
+                    ?? ''
+                ));
+
+                if ($errorCode === 'email_not_confirmed' || str_contains($errorMessage, 'email not confirmed')) {
+                    $message = 'Veuillez confirmer votre adresse e-mail avec le lien reçu avant de vous connecter.';
+
+                    return back()
+                        ->with('error', $message)
+                        ->withErrors(['error' => $message])
+                        ->withInput($request->only('email'));
+                }
+
+                return back()
+                    ->with('error', 'Identifiants incorrects')
+                    ->withInput($request->only('email'));
             }
 
             // if ($response->failed()) {
@@ -171,6 +190,19 @@ class AuthController extends Controller
                 }
 
                 $supabaseUser = $userResponse->json();
+            }
+
+            $emailConfirmedAt = $supabaseUser['email_confirmed_at']
+                ?? $supabaseUser['confirmed_at']
+                ?? null;
+
+            if (!$emailConfirmedAt) {
+                $message = 'Veuillez confirmer votre adresse e-mail avec le lien reçu avant de vous connecter.';
+
+                return back()
+                    ->with('error', $message)
+                    ->withErrors(['error' => $message])
+                    ->withInput($request->only('email'));
             }
 
             $supabaseId = $supabaseUser['id'] ?? null;
